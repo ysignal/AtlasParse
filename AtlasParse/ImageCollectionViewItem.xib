@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="ImageCollectionViewItem" customModule="ParsePlist" customModuleProvider="target">
+            <connections>
+                <outlet property="imageName" destination="O4l-v3-aZk" id="A4F-f2-bji"/>
+                <outlet property="plitImage" destination="JmH-IW-SXG" id="Ov5-rf-gea"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JmH-IW-SXG">
+                    <rect key="frame" x="10" y="20" width="180" height="180"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="MHp-ho-MIR"/>
+                </imageView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="O4l-v3-aZk">
+                    <rect key="frame" x="-2" y="0.0" width="204" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="r5v-Je-F0t"/>
+                    </constraints>
+                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" id="p8x-B1-0of">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="O4l-v3-aZk" secondAttribute="bottom" id="DZp-qZ-A3A"/>
+                <constraint firstItem="O4l-v3-aZk" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="wR0-1m-KiX"/>
+                <constraint firstAttribute="trailing" secondItem="O4l-v3-aZk" secondAttribute="trailing" id="zWm-85-ujg"/>
+            </constraints>
+            <point key="canvasLocation" x="-136" y="120"/>
+        </customView>
+    </objects>
+</document>
