@@ -3,10 +3,11 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="ImageCollectionViewItem" customModule="ParsePlist" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="ImageCollectionViewItem" customModule="AtlasParse" customModuleProvider="target">
             <connections>
                 <outlet property="imageName" destination="O4l-v3-aZk" id="A4F-f2-bji"/>
                 <outlet property="plitImage" destination="JmH-IW-SXG" id="Ov5-rf-gea"/>
@@ -19,11 +20,6 @@
             <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JmH-IW-SXG">
-                    <rect key="frame" x="10" y="20" width="180" height="180"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="MHp-ho-MIR"/>
-                </imageView>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="O4l-v3-aZk">
                     <rect key="frame" x="-2" y="0.0" width="204" height="20"/>
                     <constraints>
@@ -35,10 +31,30 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <box boxType="custom" borderWidth="0.0" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="L3g-zZ-QUP">
+                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                    <view key="contentView" id="1g3-mt-eRR">
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                    <color key="fillColor" name="unemphasizedSelectedContentBackgroundColor" catalog="System" colorSpace="catalog"/>
+                </box>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="JmH-IW-SXG">
+                    <rect key="frame" x="0.0" y="20" width="200" height="180"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="MHp-ho-MIR"/>
+                </imageView>
             </subviews>
             <constraints>
+                <constraint firstItem="L3g-zZ-QUP" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="7cc-If-GMc"/>
+                <constraint firstItem="O4l-v3-aZk" firstAttribute="top" secondItem="JmH-IW-SXG" secondAttribute="bottom" id="7wj-dx-bod"/>
                 <constraint firstAttribute="bottom" secondItem="O4l-v3-aZk" secondAttribute="bottom" id="DZp-qZ-A3A"/>
+                <constraint firstItem="JmH-IW-SXG" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="QwT-Cm-aNh"/>
+                <constraint firstItem="L3g-zZ-QUP" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="XeG-a4-moY"/>
+                <constraint firstItem="JmH-IW-SXG" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="cZI-eq-1NP"/>
+                <constraint firstAttribute="trailing" secondItem="L3g-zZ-QUP" secondAttribute="trailing" id="obO-Dz-EIa"/>
+                <constraint firstAttribute="trailing" secondItem="JmH-IW-SXG" secondAttribute="trailing" id="qaI-AY-lel"/>
                 <constraint firstItem="O4l-v3-aZk" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="wR0-1m-KiX"/>
+                <constraint firstAttribute="bottom" secondItem="L3g-zZ-QUP" secondAttribute="bottom" id="xPH-bL-SLx"/>
                 <constraint firstAttribute="trailing" secondItem="O4l-v3-aZk" secondAttribute="trailing" id="zWm-85-ujg"/>
             </constraints>
             <point key="canvasLocation" x="-136" y="120"/>

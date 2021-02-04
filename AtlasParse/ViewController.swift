@@ -53,7 +53,6 @@ class ViewController: NSViewController {
         let openPanel = NSOpenPanel()
         openPanel.canChooseDirectories = true
         openPanel.allowsMultipleSelection = true
-//        openPanel.allowedFileTypes = ["plist", "png"]
         openPanel.begin { (response) in
             if response == .OK {
                 let urls = openPanel.urls
@@ -66,16 +65,26 @@ class ViewController: NSViewController {
                 }
             }
         }
-//        openPanel.beginSheetModal(for: NSApp.mainWindow!) { (response) in
-//            if response == .OK {
-//                let paths = openPanel.urls
-//                print(paths)
-//            }
-//        }
     }
     
     @IBAction func saveFile(_ sender: Any) {
-        
+        let openPanel = NSOpenPanel()
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = false
+        openPanel.begin { (response) in
+            if response == .OK, let url = openPanel.url {
+                print(url)
+                for item in self.dataList {
+                    if let cgimage = item.image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                        let newReq = NSBitmapImageRep(cgImage: cgimage)
+                        newReq.size = item.image.size
+                        let pngData = newReq.representation(using: .png, properties: [:])
+                        let filePath = url.appendingPathComponent(item.name)
+                        try? pngData?.write(to: filePath)
+                    }
+                }
+            }
+        }
     }
     
     @IBAction func toParse(_ sender: Any) {
@@ -86,6 +95,12 @@ class ViewController: NSViewController {
         plitImage()
         isParsing = false
         button?.isEnabled = true
+    }
+    
+    @IBAction func outputSwiftFile(_ sender: Any) {
+        if let url = URL(string: plistPath.stringValue) {
+            writeSwiftFile(plistData, url: url)
+        }
     }
     
     func parseImage(url: URL) {
@@ -149,6 +164,54 @@ class ViewController: NSViewController {
             }
         }
         collectionView.reloadData()
+    }
+    
+    func writeSwiftFile(_ data: NSDictionary, url: URL) {
+        var path = url
+        let fileName = String(url.lastPathComponent.split(separator: ".").first ?? "")
+        path.deleteLastPathComponent()
+        let manager = FileManager.default
+        if !manager.fileExists(atPath: path.absoluteString) {
+            path.appendPathComponent("\(fileName).swift")
+            if !manager.fileExists(atPath: path.absoluteString) {
+                manager.createFile(atPath: path.absoluteString, contents: nil, attributes: nil)
+            }
+        } else {
+            path.appendPathComponent("\(fileName).swift")
+            if !manager.fileExists(atPath: path.absoluteString) {
+                manager.createFile(atPath: path.absoluteString, contents: nil, attributes: nil)
+            }
+        }
+        let swiftStr = fileString(from: data, name: fileName)
+        let data = swiftStr.data(using: .utf8)
+        try? data?.write(to: path, options: .atomic)
+    }
+    
+    
+    func fileString(from data: NSDictionary, name: String) -> String {
+        let newName = name.replacingOccurrences(of: "-", with: "_")
+        let header = "// ----------------------------------------\n// Sprite definitions for '\(newName)'\n// Generated with TexturePacker 5.5.0\n//\n// https://www.codeandweb.com/texturepacker\n// ----------------------------------------\n\n"
+        
+        let atlasCode = "\t// 加载纹理图集\n\tprivate static let textureAtlas = SKTextureAtlas(named: \"\(name)\")\n"
+        
+        var nameList: [String] = []
+        if let images = data["images"] as? NSArray, let image = images.firstObject as? NSDictionary, let subimages = image["subimages"] as? NSArray {
+            for subimage in subimages {
+                if let subDict = subimage as? NSDictionary, let subStr = subDict["name"] as? String, let subName = subStr.split(separator: ".").first {
+                    nameList.append(String(subName))
+                }
+            }
+        }
+        var imageCode = "\n\t// 定义纹理对象"
+        for subName in nameList.sorted() {
+            imageCode += "\n\tstatic let \(subName) = textureAtlas.textureNamed(\"\(subName)\")"
+        }
+        
+        let structCode = atlasCode + imageCode
+        
+        let structStr = "import SpriteKit\n\nstruct \(newName) {\n\n\(structCode)\n\n}"
+        
+        return header + structStr
     }
 }
 
