@@ -57,9 +57,9 @@ class ViewController: NSViewController {
             if response == .OK {
                 let urls = openPanel.urls
                 for url in urls {
-                    if url.absoluteString.hasSuffix(".plist") {
+                    if url.absoluteString.lowercased().hasSuffix(".plist") {
                         self.parsePlist(url: url)
-                    } else if url.absoluteString.hasSuffix(".png") {
+                    } else if url.absoluteString.lowercased().hasSuffix(".png") || url.absoluteString.lowercased().hasSuffix(".jpg") || url.absoluteString.lowercased().hasSuffix(".jpeg") {
                         self.parseImage(url: url)
                     }
                 }
@@ -73,7 +73,6 @@ class ViewController: NSViewController {
         openPanel.canChooseFiles = false
         openPanel.begin { (response) in
             if response == .OK, let url = openPanel.url {
-                print(url)
                 for item in self.dataList {
                     if let cgimage = item.image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
                         let newReq = NSBitmapImageRep(cgImage: cgimage)
@@ -106,19 +105,58 @@ class ViewController: NSViewController {
     func parseImage(url: URL) {
         imageData = NSImage(contentsOf: url)
         dataImage.image = imageData
-        pngPath.stringValue = url.absoluteString
+        pngPath.stringValue = url.absoluteString.removingPercentEncoding ?? url.absoluteString
     }
     
     func parsePlist(url: URL) {
         if let data = NSDictionary(contentsOf: url) {
             plistData = data
-            plistPath.stringValue = url.absoluteString
         }
+        plistPath.stringValue = url.absoluteString.removingPercentEncoding ?? url.absoluteString
     }
     
     func plitImage() {
         if let data = imageData {
-            if let images = plistData["images"] as? NSArray {
+            //MARK: 解析cocoa2d-x类型的plist
+            if let frames = plistData["frames"] as? NSDictionary {
+                dataList.removeAll()
+                for key in frames.allKeys {
+                    if let frame = frames[key] as? NSDictionary {
+                        if let textureRect = (frame["frame"] != nil ? frame["frame"] : frame["textureRect"]) as? String {
+                            let list = textureRect.replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "").split(separator: ",")
+                            if list.count >= 4, let name = key as? String {
+                                let x = CGFloat(NSString(string: String(list[0])).floatValue)
+                                let y = CGFloat(NSString(string: String(list[1])).floatValue)
+                                let width = CGFloat(NSString(string: String(list[2])).floatValue)
+                                let height = CGFloat(NSString(string: String(list[3])).floatValue)
+                                let newImage: NSImage = NSImage(size: NSSize(width: width, height: height))
+                                let clipRect = NSRect(x: 0, y: 0, width: width, height: height)
+                                let rect = CGRect(x: -x, y: y-data.size.height+height, width: data.size.width, height: data.size.height)
+                                newImage.lockFocus()
+                                data.draw(in: rect)
+                                let path = NSBezierPath(rect: clipRect)
+                                path.addClip()
+                                newImage.unlockFocus()
+                                if let textureRotated = frame["textureRotated"] as? Bool, textureRotated {
+                                    // 图片方向调换
+                                    let rotateImage: NSImage = NSImage(size: NSSize(width: height, height: width))
+                                    rotateImage.lockFocus()
+                                    let rorate = NSAffineTransform()
+                                    rorate.rotate(byDegrees: 90)
+                                    rorate.concat()
+                                    newImage.draw(in: CGRect(x: 0, y: -height, width: width, height: height))
+                                    rotateImage.unlockFocus()
+                                    
+                                    dataList.append(ImageItem(image: rotateImage, name: name))
+                                } else {
+                                    dataList.append(ImageItem(image: newImage, name: name))
+                                }
+                            }
+                        }
+                    }
+                }
+                //MARK: 解析SpriteKit类型的plist
+            } else if let images = plistData["images"] as? NSArray {
                 for image in images {
                     if let imageDict = image as? NSDictionary {
                         if let subimages = imageDict["subimages"] as? NSArray {
@@ -149,11 +187,11 @@ class ViewController: NSViewController {
                                                 rorate.concat()
                                                 newImage.draw(in: CGRect(x: 0, y: -height, width: width, height: height))
                                                 rotateImage.unlockFocus()
+                                                
                                                 dataList.append(ImageItem(image: rotateImage, name: name))
                                             } else {
                                                 dataList.append(ImageItem(image: newImage, name: name))
                                             }
-//                                            break
                                         }
                                     }
                                 }
@@ -192,7 +230,7 @@ class ViewController: NSViewController {
         let newName = name.replacingOccurrences(of: "-", with: "_")
         let header = "// ----------------------------------------\n// Sprite definitions for '\(newName)'\n// Generated with TexturePacker 5.5.0\n//\n// https://www.codeandweb.com/texturepacker\n// ----------------------------------------\n\n"
         
-        let atlasCode = "\t// 加载纹理图集\n\tprivate static let textureAtlas = SKTextureAtlas(named: \"\(name)\")\n"
+        let atlasCode = "\t// Load texture atlas.\n\tprivate static let textureAtlas = SKTextureAtlas(named: \"\(name)\")\n"
         
         var nameList: [String] = []
         if let images = data["images"] as? NSArray, let image = images.firstObject as? NSDictionary, let subimages = image["subimages"] as? NSArray {
@@ -202,7 +240,7 @@ class ViewController: NSViewController {
                 }
             }
         }
-        var imageCode = "\n\t// 定义纹理对象"
+        var imageCode = "\n\t// Set texture instance."
         for subName in nameList.sorted() {
             imageCode += "\n\tstatic let \(subName) = textureAtlas.textureNamed(\"\(subName)\")"
         }

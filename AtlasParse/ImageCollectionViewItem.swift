@@ -15,7 +15,6 @@ class ImageCollectionViewItem: NSCollectionViewItem {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
-        plitImage.contentTintColor = .gray
     }
     
     func configuration(of item: ImageItem) {
